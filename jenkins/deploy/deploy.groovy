@@ -30,8 +30,8 @@ node {
     }
 
     stage('Reload Nginx') {
-        sh 'docker stop nginx || docker rm nginx'
-        sh "sed 's/\$PORT/$PORT/g' \$PWD/jenkins/deploy/nginx-default.conf"
+        sh '(docker stop nginx && docker rm nginx) || true'
+        sh "sed -i 's/\$PORT/$PORT/g' \$PWD/jenkins/deploy/nginx-default.conf"
         sh "docker run --name nginx -d -v \$PWD/jenkins/deploy/nginx-default.conf:/etc/nginx/conf.d/default.conf nginx:1.17-alpine"
     }
     
@@ -41,8 +41,10 @@ node {
         containers = containers.split('\n')
         print containers
         for(int i = 0; i < containers.length; i++) {
-            sh "docker stop ${containers[i].split(' ')[0]} || true"
-            sh "docker rm ${containers[i].split(' ')[0]} || true"
+            if(containers[i].indexOf(TAG) < 0) {
+                sh "docker stop ${containers[i].split(' ')[0]} || true"
+                sh "docker rm ${containers[i].split(' ')[0]} || true"
+            }  
         }
     }
 }
