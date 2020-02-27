@@ -32,7 +32,7 @@ node {
     stage('Reload Nginx') {
         sh '(docker stop nginx && docker rm nginx) || true'
         sh "sed -i 's/\$PORT/$PORT/g' \$PWD/jenkins/deploy/nginx-default.conf"
-        sh "docker run --name nginx -d -p 80:80 -v \$PWD/jenkins/deploy/nginx-default.conf:/etc/nginx/conf.d/default.conf nginx:1.17-alpine"
+        sh "docker run --name nginx -d -p 80:80  --network host -v \$PWD/jenkins/deploy/nginx-default.conf:/etc/nginx/conf.d/default.conf nginx:1.17-alpine"
     }
     
     stage('Destroy Old') {
